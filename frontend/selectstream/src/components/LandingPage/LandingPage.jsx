@@ -14,7 +14,7 @@ const navigate = useNavigate();
     switch (activeComponent) {
       case "Home":
         return <HomePage/>;
-      case "Quicklearn":
+      case "selectstream":
         return <QuickLearn/>
       case "Settings":
         return <h1 style={{ color: "#fff" }}>Settings</h1>;
@@ -36,9 +36,9 @@ const navigate = useNavigate();
             </Nav.Link>
             <Nav.Link
               className="text-white"
-              onClick={() => setActiveComponent("Quicklearn")}
+              onClick={() => setActiveComponent("selectstream")}
             >
-              <School /> <span className="ms-2">Quick Learn</span>
+              <School /> <span className="ms-2">Select-Stream AI</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"
