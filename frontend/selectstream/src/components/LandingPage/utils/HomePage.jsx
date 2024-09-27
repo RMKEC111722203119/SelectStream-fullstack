@@ -1,8 +1,10 @@
 import React from "react";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 // Ensure this CSS file exists
 
 const HomePage = () => {
+  const navigate = useNavigate();
   return (
     <div className="home-page" style={{backgroundColor:"#040404"}}>
       <header className="text-white text-center py-5" style={{backgroundColor:"#040404"}}>

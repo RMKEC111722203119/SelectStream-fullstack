@@ -10,7 +10,7 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from langchain.tools import Tool
-
+from Data.py import predefined_roadmaps
 # Initialize Flask app
 app = Flask(__name__)
 
@@ -142,6 +142,19 @@ def quick():
 
     response = process(querys)
     return jsonify({"response": response})
+
+
+@app.route('/get_data', methods=['GET'])
+def get_data():
+    return jsonify(predefined_roadmaps)
+
+# Endpoint to add/update details in the dictionary
+@app.route('/add_data', methods=['POST'])
+def add_data():
+    new_data = request.get_json()  # Get the JSON payload from the frontend
+    # Update the dictionary dynamically
+    data.update(new_data)
+    return jsonify({"message": "Data added successfully!", "updated_data": data}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
