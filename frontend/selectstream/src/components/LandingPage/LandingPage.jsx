@@ -4,6 +4,8 @@ import { Home, School, Settings as SettingsIcon } from "@mui/icons-material";
 import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "./LandingPage.css";
 import { useNavigate } from "react-router-dom";
+import Roadmap from "./utils/Roadmap";
+
 
 import HomePage from "./utils/HomePage";
 import QuickLearn from "./utils/QuickLearn";
@@ -15,7 +17,9 @@ const navigate = useNavigate();
       case "Home":
         return <HomePage/>;
       case "selectstream":
-        return <QuickLearn/>
+        return <QuickLearn/>;
+      case "Roadmap":
+        return <Roadmap />
       case "Settings":
         return <h1 style={{ color: "#fff" }}>Settings</h1>;
       default:
@@ -40,6 +44,13 @@ const navigate = useNavigate();
             >
               <School /> <span className="ms-2">Select-Stream AI</span>
             </Nav.Link>
+            <Nav.Link
+  className="text-white"
+  onClick={() => setActiveComponent("Roadmap")}
+>
+  <span className="ms-2">Roadmap</span>
+</Nav.Link>
+
             <Nav.Link
               className="text-white"
               onClick={() => setActiveComponent("Settings")}
