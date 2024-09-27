@@ -1,21 +1,32 @@
+// LandingPage.jsx
 import React, { useState } from "react";
 import { Container, Row, Col, Nav } from "react-bootstrap";
-import { Home, School, Settings as SettingsIcon } from "@mui/icons-material";
+import {
+  Home,
+  Map,
+  School,
+  Settings as SettingsIcon,
+  Logout,
+} from "@mui/icons-material"; // Import new icons
 import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "./LandingPage.css";
 import { useNavigate } from "react-router-dom";
-
+import Roadmap from "./utils/Roadmap";
 import HomePage from "./utils/HomePage";
 import QuickLearn from "./utils/QuickLearn";
+
 const LandingPage = () => {
   const [activeComponent, setActiveComponent] = useState("Home");
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const renderComponent = () => {
     switch (activeComponent) {
       case "Home":
-        return <HomePage/>;
+        return <HomePage />;
       case "selectstream":
-        return <QuickLearn/>
+        return <QuickLearn />;
+      case "Roadmap":
+        return <Roadmap />;
       case "Settings":
         return <h1 style={{ color: "#fff" }}>Settings</h1>;
       default:
@@ -26,7 +37,11 @@ const navigate = useNavigate();
   return (
     <Container fluid>
       <Row>
-        <Col md={3} className="sidebar text-white " style={{backgroundColor:"#040404"}}>
+        <Col
+          md={3}
+          className="sidebar text-white"
+          style={{ backgroundColor: "#040404" }}
+        >
           <Nav className="flex-column mt-3">
             <Nav.Link
               className="text-white"
@@ -42,21 +57,31 @@ const navigate = useNavigate();
             </Nav.Link>
             <Nav.Link
               className="text-white"
-              onClick={() => setActiveComponent("Settings")}
+              onClick={() => setActiveComponent("Roadmap")}
             >
-              <SettingsIcon /> <span className="ms-2">Settings </span>
+              <Map /> <span className="ms-2">Personalized Roadmap</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"
+              onClick={() => setActiveComponent("Settings")}
+            >
+              <SettingsIcon /> <span className="ms-2">Settings</span>
+            </Nav.Link>
+            <Nav.Link
+              className="text-white mt-auto"
               onClick={() => {
                 navigate("/");
               }}
             >
-              Logout
+              <Logout /> <span className="ms-2">Logout</span>
             </Nav.Link>
           </Nav>
         </Col>
-        <Col md={9} className="main-content" style={{backgroundColor:"#040404"}}>
+        <Col
+          md={9}
+          className="main-content"
+          style={{ backgroundColor: "#040404" }}
+        >
           {renderComponent()}
         </Col>
       </Row>
