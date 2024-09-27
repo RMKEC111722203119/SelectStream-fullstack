@@ -130,7 +130,7 @@ def process(search_query):
 
     result = video_details[0] if final_answer == "query1" else video_details[1]
     video_url = f"https://www.youtube.com/watch?v={result['videoId']}"
-    return video_url
+    return video_url 
 
 # Flask API Endpoint
 @app.route('/quick', methods=['POST'])
