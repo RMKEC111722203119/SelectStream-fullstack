@@ -1,0 +1,19 @@
+.sidebar {
+  min-height: 100vh; /* Full height */
+}
+
+.main-content {
+  padding: 20px; /* Spacing inside the main content */
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Light hover effect */
+}
+
+.bg-secondary {
+  background-color: #343a40 !important; /* Dark background for main content */
+}
+
+h1 {
+  color: #ffffff; /* White text for headings */
+}

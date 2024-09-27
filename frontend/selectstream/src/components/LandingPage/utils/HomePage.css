@@ -1,0 +1,50 @@
+.home-page {
+  background-color: #f8f9fa; /* Light background for the main content */
+}
+
+header {
+  background: linear-gradient(135deg, #343a40, #495057);
+}
+
+footer {
+  background-color: #343a40; /* Dark background for the footer */
+}
+
+.custom-card {
+  border: none; /* Remove default card border */
+  transition: transform 0.3s; /* Smooth transition for hover effect */
+}
+
+.custom-card:hover {
+  transform: scale(1.05); /* Scale effect on hover */
+}
+
+.card-image {
+  border-radius: 0.5rem 0.5rem 0 0; /* Rounded top corners for the image */
+}
+
+.card-title {
+  font-size: 1.5rem; /* Larger title for cards */
+}
+
+.card-text {
+  color: #6c757d; /* Gray text for description */
+}
+
+.custom-button {
+  background-color: #007bff; /* Primary color for buttons */
+  border: none; /* Remove border */
+  border-radius: 20px; /* Rounded button corners */
+  transition: background-color 0.3s, transform 0.3s; /* Smooth transition */
+}
+
+.custom-button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+  transform: translateY(-2px); /* Slight upward movement on hover */
+}
+
+@media (max-width: 768px) {
+  .custom-card {
+    margin-bottom: 20px; /* Margin for smaller screens */
+  }
+}
