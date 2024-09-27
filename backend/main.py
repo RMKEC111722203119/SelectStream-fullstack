@@ -1,23 +1,27 @@
-# Quicklearn.py
 from flask import Flask, jsonify, request
-
+from flask_cors import CORS  # Import CORS to handle CORS issues
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
 from youtube_transcript_api import YouTubeTranscriptApi
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.llms import HuggingFaceHub
-
 from langchain.chains import RetrievalQA
 from langchain.prompts import ChatPromptTemplate
-from langchain.tools import Tool
 from langchain_groq import ChatGroq
+from langchain.tools import Tool
 
-
+# Initialize Flask app
 app = Flask(__name__)
 
-# Helper function to search YouTube and retrieve transcripts
+# Enable CORS and handle preflight (OPTIONS) requests
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+
+API_KEY = "AIzaSyASpU0qAf8xcDgZ6Wqdw-Ts8WJftF0cDFU"
+GROQ_API_KEY = "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"
+HUGGINGFACEHUB_API_TOKEN = "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"
+
+# YouTube search function
 def ytsearch(search_query):
     youtube = build('youtube', 'v3', developerKey=API_KEY)
     try:
@@ -44,7 +48,6 @@ def ytsearch(search_query):
                     'transcript': transcript
                 })
             except Exception as e:
-                print(f"An error occurred while retrieving the transcript for video {video['videoId']}: {e}")
                 transcriptions.append({
                     'title': video['title'],
                     'channelTitle': video['channelTitle'],
@@ -66,10 +69,9 @@ def ytsearch(search_query):
         print(f"An HTTP error occurred: {e}")
         return None, None, []
 
-# Helper function to process transcripts and queries
+# Process transcript and query
 def process_transcript_and_query(transcript, query):
     model_name = "BAAI/bge-base-en-v1.5"
-
     docs = [{'page_content': transcript}]
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=256, chunk_overlap=20)
     chunks = text_splitter.split_documents(docs)
@@ -79,10 +81,7 @@ def process_transcript_and_query(transcript, query):
     )
 
     vectorstore = Chroma.from_documents(chunks, embeddings)
-    retriever = vectorstore.as_retriever(
-        search_type="mmr",
-        search_kwargs={'k': 2}
-    )
+    retriever = vectorstore.as_retriever(search_type="mmr", search_kwargs={'k': 2})
 
     llm = HuggingFaceHub(
         repo_id="huggingfaceh4/zephyr-7b-alpha",
@@ -94,76 +93,55 @@ def process_transcript_and_query(transcript, query):
     response = qa.run(query)
     return response
 
-### Flask API Endpoints ###
-
-# Endpoint to process search query and return the best video based on the content
-@app.route('/quicklearn', methods=['POST'])
-def process_search_query():
-    data = request.json
-    search_query = data.get("search_query")
-
-    if not search_query:
-        return jsonify({"error": "Please provide a search query"}), 400
-
-    # Search YouTube and get video transcripts
+# Helper function to process YouTube query
+def process(search_query):
     video_transcript1, video_transcript2, video_details = ytsearch(search_query)
 
     if not video_details:
-        return jsonify({"error": "No videos found for the given query"}), 404
+        return None
 
     query = f"provide 10 questions on {search_query}"
 
-    # Create tools to process transcripts
     process_tool1 = Tool(
         name='Process Video 1 Transcript',
         func=lambda q: process_transcript_and_query(video_transcript1, q),
-        description="Processes the first video's transcript."
+        description="Useful for processing transcript and answering queries."
     )
 
     process_tool2 = Tool(
         name='Process Video 2 Transcript',
         func=lambda q: process_transcript_and_query(video_transcript2, q),
-        description="Processes the second video's transcript."
+        description="Useful for processing transcript and answering queries."
     )
 
     tools = [process_tool1, process_tool2]
 
-    # Using Groq to determine the best response
     llm = ChatGroq(model="llama3-8b-8192", groq_api_key=GROQ_API_KEY)
     chat = ChatGroq(model="mixtral-8x7b-32768", groq_api_key=GROQ_API_KEY)
 
-    system_message = "You are a helpful assistant."
-    human_message = "{text}"
-    prompt = ChatPromptTemplate.from_messages([("system", system_message), ("human", human_message)])
-
-    # Generate 10 questions based on the search query
-    chain = prompt | chat
+    chain = ChatPromptTemplate.from_messages([("system", "You are a helpful assistant."), ("human", "{text}")]) | chat
     questions = chain.invoke({"text": query}).content
 
-    tool_query = f"""
-    Use the provided tools to answer the following ten questions about {search_query}. For each question, identify and specify the best tool to use. Provide the response in this format:
-
-    The best tool for [Question] is [Tool Name].
-    
-    {questions}
-    """
-
     llm_with_tools = llm.bind_tools(tools)
-    answers = llm_with_tools.invoke(tool_query).content
+    answers = llm_with_tools.invoke(f"Use the provided tools to answer 10 questions about {search_query}. {questions}").content
 
-    # Final query to decide which video is better
-    final_query = f"give one word answer which is better: query1 or query2. {answers}"
+    final_query = f"give one-word answer which is better: query1 or query2 {answers}"
     final_answer = chat.invoke(final_query).content.strip()
 
-    # Return the better video
-    if final_answer == "query1":
-        result = video_details[0]
-    else:
-        result = video_details[1]
-
-    # Return the URL of the best video
+    result = video_details[0] if final_answer == "query1" else video_details[1]
     video_url = f"https://www.youtube.com/watch?v={result['videoId']}"
-    return jsonify({"best_video_url": video_url}), 200
+    return video_url 
+
+# Flask API Endpoint
+@app.route('/quick', methods=['POST'])
+def quick():
+    data = request.json
+    querys = data.get('query')
+    if not querys:
+        return jsonify({"error": "Missing transcript or query"}), 400
+
+    response = process(querys)
+    return jsonify({"response": response})
 
 if __name__ == '__main__':
     app.run(debug=True)
