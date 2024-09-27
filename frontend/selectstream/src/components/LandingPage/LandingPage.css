@@ -1,17 +1,21 @@
 .sidebar {
-  min-height: 100vh; /* Full height */
+  min-height: 100vh;
+  border-right: 1px solid rgb(151, 151, 151);
+  width: 25%; 
+   /* Full height */
 }
 
 .main-content {
-  padding: 20px; /* Spacing inside the main content */
+  padding: 50px;
+  /* Spacing inside the main content */
 }
 
 .sidebar .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Light hover effect */
+  background-color: #ff2000; /* Light hover effect */
 }
 
 .bg-secondary {
-  background-color: #343a40 !important; /* Dark background for main content */
+  background-color: #778899 ; /* Dark background for main content */
 }
 
 h1 {

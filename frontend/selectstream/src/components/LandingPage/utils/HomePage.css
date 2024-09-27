@@ -1,5 +1,5 @@
 .home-page {
-  background-color: #f8f9fa; /* Light background for the main content */
+  background-color: #040404; /* Light background for the main content */
 }
 
 header {
@@ -7,7 +7,7 @@ header {
 }
 
 footer {
-  background-color: #343a40; /* Dark background for the footer */
+  background-color: #040404; /* Dark background for the footer */
 }
 
 .custom-card {

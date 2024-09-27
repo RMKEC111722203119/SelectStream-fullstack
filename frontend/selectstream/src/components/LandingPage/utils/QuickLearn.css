@@ -1,5 +1,5 @@
 .quick-learn {
-  background-color: #252527; /* Dark background */
+  background-color: #040404; /* Dark background */
   padding: 30px;
   border-radius: 15px; /* Rounded corners */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Strong shadow effect */
@@ -18,7 +18,7 @@
 }
 
 .video-card {
-  background-color: #ffffff; /* Light card background */
+  background-color: #040404; /* Light card background */
   border-radius: 10px; /* Rounded corners for card */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 }

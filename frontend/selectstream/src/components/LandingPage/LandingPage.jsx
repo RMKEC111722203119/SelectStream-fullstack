@@ -26,7 +26,7 @@ const navigate = useNavigate();
   return (
     <Container fluid>
       <Row>
-        <Col md={3} className="sidebar bg-dark text-white">
+        <Col md={3} className="sidebar text-white " style={{backgroundColor:"#040404"}}>
           <Nav className="flex-column mt-3">
             <Nav.Link
               className="text-white"
@@ -56,7 +56,7 @@ const navigate = useNavigate();
             </Nav.Link>
           </Nav>
         </Col>
-        <Col md={9} className="main-content bg-secondary">
+        <Col md={9} className="main-content" style={{backgroundColor:"#040404"}}>
           {renderComponent()}
         </Col>
       </Row>
