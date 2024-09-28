@@ -122,6 +122,10 @@ Select-Stream AI is a platform that empowers users with curated educational cont
 3. **Explore Career Pathways:**  
    View personalized career roadmaps and insights based on user input.
 
+
+https://github.com/user-attachments/assets/2c19719d-5042-4c50-aa6a-2d327ab11555
+
+Refer the above video for navigation through the application
 ---
 
 ## **6. API Documentation**
