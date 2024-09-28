@@ -7,6 +7,8 @@ import {
   School,
   Settings as SettingsIcon,
   Logout,
+  Group,
+  GroupOutlined,
 } from "@mui/icons-material"; // Import new icons
 import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "./LandingPage.css";
@@ -14,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import Roadmap from "./utils/Roadmap";
 import HomePage from "./utils/HomePage";
 import QuickLearn from "./utils/QuickLearn";
+
 
 const LandingPage = () => {
   const [activeComponent, setActiveComponent] = useState("Home");
@@ -27,6 +30,8 @@ const LandingPage = () => {
         return <QuickLearn />;
       case "Roadmap":
         return <Roadmap />;
+      case "Group":
+        return <Group/>;
       case "Settings":
         return <h1 style={{ color: "#fff" }}>Settings</h1>;
       default:
@@ -60,6 +65,12 @@ const LandingPage = () => {
               onClick={() => setActiveComponent("Roadmap")}
             >
               <Map /> <span className="ms-2">Personalized Roadmap</span>
+            </Nav.Link>
+            <Nav.Link
+              className="text-white" onClick={()=>setActiveComponent=== "Group" ? "active": ""}
+              onClick={() => setActiveComponent("Group")}
+            >
+              <GroupOutlined /> <span className="ms-2">Group</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"
