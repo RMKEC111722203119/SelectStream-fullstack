@@ -10,10 +10,11 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from langchain.tools import Tool
-from Data.py import predefined_roadmaps
+from routes import api
+from Data import predefined_roadmaps
 # Initialize Flask app
 app = Flask(__name__)
-
+app.register_blueprint(api)
 # Enable CORS and handle preflight (OPTIONS) requests
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
@@ -151,10 +152,17 @@ def get_data():
 # Endpoint to add/update details in the dictionary
 @app.route('/add_data', methods=['POST'])
 def add_data():
-    new_data = request.get_json()  # Get the JSON payload from the frontend
-    # Update the dictionary dynamically
-    data.update(new_data)
-    return jsonify({"message": "Data added successfully!", "updated_data": data}), 200
+    new_data = request.json  # Get the JSON payload from the frontend
+    if new_data:  # Ensure that new_data is not None
+        # Update the dictionary dynamically
+        predefined_roadmaps.append(new_data)
+        return jsonify({"message": "Data added successfully!"}), 200
+    else:
+        return jsonify({"error": "No data provided!"}), 400
+    
+
+    
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

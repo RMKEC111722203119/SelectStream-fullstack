@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect } from "react";
+// utils/Roadmap.jsx
+/*import React, { useState, useEffect } from "react";
 import {
   Container,
   TextField,
@@ -10,63 +10,58 @@ import {
   Button,
   Divider,
   Grid,
+  LinearProgress,
 } from "@mui/material";
 import axios from "axios";
+import { searchableRoadmaps, predefinedRoadmaps } from "./roadmaps";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Roadmap.css";
 
 const Roadmap = () => {
   const [techStack, setTechStack] = useState("");
-  const [allRoadmaps, setAllRoadmaps] = useState([]); // Store all fetched roadmaps
-  const [filteredRoadmaps, setFilteredRoadmaps] = useState([]); // Store filtered roadmaps
+  const [roadmap, setRoadmap] = useState([]);
+  const [userRoadmaps, setUserRoadmaps] = useState([]);
   const [newRoadmap, setNewRoadmap] = useState({
     title: "",
     author_name: "",
     author_desc: "",
     article_desc: "",
     content: "",
+    
   });
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Function to fetch user roadmaps
-  const fetchUserRoadmaps = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get("http://localhost:5000/get_data");
-      if (Array.isArray(response.data)) {
-        setAllRoadmaps(response.data);
-        setFilteredRoadmaps(response.data); // Initialize filtered roadmaps
-      } else {
-        console.error("Fetched data is not an array:", response.data);
-        setAllRoadmaps([]);
-        setFilteredRoadmaps([]);
-      }
-    } catch (error) {
-      console.error("Error fetching roadmaps:", error);
-      setAllRoadmaps([]);
-      setFilteredRoadmaps([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchUserRoadmaps = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("/get_data");
+        if (Array.isArray(response.data)) {
+          setUserRoadmaps(response.data);
+        } else {
+          console.error("Fetched data is not an array:", response.data);
+          setUserRoadmaps([]);
+        }
+      } catch (error) {
+        console.error("Error fetching roadmaps:", error);
+        setUserRoadmaps([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUserRoadmaps();
   }, []);
 
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setTechStack(value);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const selectedRoadmap = searchableRoadmaps[techStack];
 
-    if (value.trim() === "") {
-      // Reset to show all roadmaps if input is empty
-      setFilteredRoadmaps(allRoadmaps);
+    if (selectedRoadmap) {
+      setRoadmap(selectedRoadmap);
     } else {
-      const filtered = allRoadmaps.filter((roadmap) =>
-        roadmap.title.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredRoadmaps(filtered);
+      setRoadmap([]);
     }
   };
 
@@ -78,24 +73,19 @@ const Roadmap = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/add_data",
-        newRoadmap
-      );
+      const response = await axios.post("/add_data", newRoadmap);
       if (response.data) {
-        // Clear new roadmap input
-        setNewRoadmap({
-          title: "",
-          author_name: "",
-          author_desc: "",
-          article_desc: "",
-          content: "",
-        });
-        setShowForm(false); // Optionally hide the form after adding
-
-        // Refetch user roadmaps to ensure the display is updated
-        await fetchUserRoadmaps();
+        setUserRoadmaps([...userRoadmaps, response.data]);
       }
+      setNewRoadmap({
+        title: "",
+        author_name: "",
+        author_desc: "",
+        article_desc: "",
+        content: "",
+        progress: 0,
+      });
+      setShowForm(false);
     } catch (error) {
       console.error("Error adding roadmap:", error);
     }
@@ -104,7 +94,8 @@ const Roadmap = () => {
   return (
     <>
       <p className="display-6 text-white mt-2" style={{ fontWeight: "bold" }}>
-        Get your <span style={{ textDecoration: "underline" }}>Personalized RoadMaps</span> 📌
+        Get your <span style={{ textDecoration: "underline" }}>Personalized RoadMaps</span>{" "}
+        <span style={{ textDecoration: "underline" }}></span> 📌
       </p>
       <Container className="mt-5 p-3">
         <Card
@@ -112,17 +103,23 @@ const Roadmap = () => {
           style={{ background: "#1a1a1a", borderRadius: "10px" }}
         >
           <CardContent>
-            <form onSubmit={(e) => e.preventDefault()} className="d-flex flex-column gap-3">
+            <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
               <TextField
                 label="Enter a technology stack"
                 variant="outlined"
                 fullWidth
                 className="form-control"
-                InputLabelProps={{ style: { color: "#b0b0b0" } }}
-                inputProps={{ style: { color: "#000" } }}
-                InputProps={{ style: { backgroundColor: "#fff" } }}
+                InputLabelProps={{
+                  style: { color: "#b0b0b0" },
+                }}
+                inputProps={{
+                  style: { color: "#000" },
+                }}
+                InputProps={{
+                  style: { backgroundColor: "#fff" },
+                }}
                 value={techStack}
-                onChange={handleSearchChange}
+                onChange={(e) => setTechStack(e.target.value)}
                 required
               />
               <Button
@@ -139,17 +136,48 @@ const Roadmap = () => {
               </Button>
             </form>
 
+            {roadmap.length > 0 ? (
+              <Box className="mt-4 p-3 border rounded bg-dark">
+                <Typography variant="h6" className="mb-3 text-white">
+                  Roadmap for {techStack}:
+                </Typography>
+                <ul className="list-group">
+                  {roadmap.map((item, index) => (
+                    <li
+                      key={index}
+                      className="list-group-item bg-dark text-white"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </Box>
+            ) : (
+              techStack && (
+                <Typography
+                  variant="body1"
+                  color="error"
+                  className="text-center mt-3"
+                >
+                  No roadmap found for "{techStack}".
+                </Typography>
+              )
+            )}
+
             <Divider className="my-4" />
 
             <Typography variant="h5" className="mt-4 text-white">
-              User-Added Roadmaps:
+              Predefined Roadmaps:
             </Typography>
             <Grid container spacing={3} className="mt-3">
-              {filteredRoadmaps.map((roadmap, index) => (
+              {predefinedRoadmaps.map((roadmap, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
                   <Card
-                    className="mt-3 bg-dark text-light shadow-sm"
-                    style={{ borderRadius: "10px", height: "300px" }}
+                    className="bg-dark text-light shadow-sm"
+                    style={{
+                      borderRadius: "10px",
+                      height: "300px",
+                    }}
                   >
                     <CardContent
                       style={{
@@ -158,16 +186,19 @@ const Roadmap = () => {
                         justifyContent: "space-between",
                       }}
                     >
-                      <Typography variant="h6">{roadmap.title}</Typography>
+                      <Typography variant="h6" style={{ fontWeight: "bold" }}>
+                        {roadmap.title}
+                      </Typography>
                       <Typography variant="body2" className="mb-2">
-                        <strong>{roadmap.author_name}</strong> - {roadmap.author_desc}
+                        <strong>{roadmap.author_name}</strong> -{" "}
+                        {roadmap.author_desc}
                       </Typography>
                       <Typography variant="body2">
                         {roadmap.article_desc}
                       </Typography>
                       <Button
                         variant="contained"
-                        className="mt-5"
+                        className="mt-2"
                         onClick={() => alert(roadmap.content)}
                         style={{
                           backgroundColor: "#ff5722",
@@ -183,6 +214,55 @@ const Roadmap = () => {
                 </Grid>
               ))}
             </Grid>
+
+            {userRoadmaps.length > 0 && (
+              <>
+                <Typography variant="h5" className="mt-5 text-white">
+                  User-Added Roadmaps:
+                </Typography>
+                <Grid container spacing={3} className="mt-3">
+                  {userRoadmaps.map((roadmap, index) => (
+                    <Grid item xs={12} sm={6} md={4} key={index}>
+                      <Card
+                        className="mt-3 bg-dark text-light shadow-sm"
+                        style={{ borderRadius: "10px", height: "300px" }}
+                      >
+                        <CardContent
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Typography variant="h6">{roadmap.title}</Typography>
+                          <Typography variant="body2" className="mb-2">
+                            <strong>{roadmap.author_name}</strong> -{" "}
+                            {roadmap.author_desc}
+                          </Typography>
+                          <Typography variant="body2">
+                            {roadmap.article_desc}
+                          </Typography>
+                          
+                          <Button
+                            variant="contained"
+                            className="mt-5"
+                            onClick={() => alert(roadmap.content)}
+                            style={{
+                              backgroundColor: "#ff5722",
+                              color: "#fff",
+                              borderRadius: "15px",
+                              marginTop: "auto",
+                            }}
+                          >
+                            View Roadmap
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </>
+            )}
 
             <Button
               variant="outlined"
@@ -218,6 +298,7 @@ const Roadmap = () => {
                   value={newRoadmap.author_name}
                   onChange={handleInputChange}
                   required
+                  className="mt-2"
                   InputProps={{
                     style: { backgroundColor: "#fff", color: "#000" },
                   }}
@@ -230,6 +311,7 @@ const Roadmap = () => {
                   value={newRoadmap.author_desc}
                   onChange={handleInputChange}
                   required
+                  className="mt-2"
                   InputProps={{
                     style: { backgroundColor: "#fff", color: "#000" },
                   }}
@@ -242,6 +324,7 @@ const Roadmap = () => {
                   value={newRoadmap.article_desc}
                   onChange={handleInputChange}
                   required
+                  className="mt-2"
                   InputProps={{
                     style: { backgroundColor: "#fff", color: "#000" },
                   }}
@@ -254,13 +337,29 @@ const Roadmap = () => {
                   value={newRoadmap.content}
                   onChange={handleInputChange}
                   required
+                  className="mt-2"
+                  InputProps={{
+                    style: { backgroundColor: "#fff", color: "#000" },
+                  }}
+                />
+                <TextField
+                  label="Progress (%)"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  name="progress"
+                  value={newRoadmap.progress}
+                  onChange={handleInputChange}
+                  required
+                  className="mt-2"
                   InputProps={{
                     style: { backgroundColor: "#fff", color: "#000" },
                   }}
                 />
                 <Button
                   type="submit"
-                  className="mt-3"
+                  variant="contained"
+                  className="mt-4"
                   style={{
                     backgroundColor: "#ff5722",
                     color: "#fff",

@@ -14,6 +14,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/user-register" element={<SignUp />} />
         <Route path="/selectstream" element={<LandingPage />} />
+        
       </Routes>
     </>
   );

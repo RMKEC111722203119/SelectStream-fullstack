@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+/*import React, { useState, useEffect } from "react";
 import {
   Container,
   TextField,
@@ -17,14 +16,16 @@ import "./Roadmap.css";
 
 const Roadmap = () => {
   const [techStack, setTechStack] = useState("");
-  const [allRoadmaps, setAllRoadmaps] = useState([]); // Store all fetched roadmaps
-  const [filteredRoadmaps, setFilteredRoadmaps] = useState([]); // Store filtered roadmaps
-  const [newRoadmap, setNewRoadmap] = useState({
-    title: "",
-    author_name: "",
-    author_desc: "",
-    article_desc: "",
-    content: "",
+  const [roadmaps, setRoadmaps] = useState({
+    roadmap: [],
+    userRoadmaps: [],
+    newRoadmap: {
+      title: "",
+      author_name: "",
+      author_desc: "",
+      article_desc: "",
+      content: "",
+    },
   });
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -35,17 +36,14 @@ const Roadmap = () => {
     try {
       const response = await axios.get("http://localhost:5000/get_data");
       if (Array.isArray(response.data)) {
-        setAllRoadmaps(response.data);
-        setFilteredRoadmaps(response.data); // Initialize filtered roadmaps
+        setRoadmaps((prev) => ({ ...prev, userRoadmaps: response.data }));
       } else {
         console.error("Fetched data is not an array:", response.data);
-        setAllRoadmaps([]);
-        setFilteredRoadmaps([]);
+        setRoadmaps((prev) => ({ ...prev, userRoadmaps: [] }));
       }
     } catch (error) {
       console.error("Error fetching roadmaps:", error);
-      setAllRoadmaps([]);
-      setFilteredRoadmaps([]);
+      setRoadmaps((prev) => ({ ...prev, userRoadmaps: [] }));
     } finally {
       setLoading(false);
     }
@@ -55,23 +53,24 @@ const Roadmap = () => {
     fetchUserRoadmaps();
   }, []);
 
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setTechStack(value);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const selectedRoadmap = roadmaps.userRoadmaps.find(
+      (r) => r.title.toLowerCase() === techStack.toLowerCase()
+    );
 
-    if (value.trim() === "") {
-      // Reset to show all roadmaps if input is empty
-      setFilteredRoadmaps(allRoadmaps);
+    if (selectedRoadmap) {
+      setRoadmaps((prev) => ({ ...prev, roadmap: [selectedRoadmap] }));
     } else {
-      const filtered = allRoadmaps.filter((roadmap) =>
-        roadmap.title.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredRoadmaps(filtered);
+      setRoadmaps((prev) => ({ ...prev, roadmap: [] }));
     }
   };
 
   const handleInputChange = (e) => {
-    setNewRoadmap({ ...newRoadmap, [e.target.name]: e.target.value });
+    setRoadmaps((prev) => ({
+      ...prev,
+      newRoadmap: { ...prev.newRoadmap, [e.target.name]: e.target.value },
+    }));
   };
 
   const handleAddRoadmap = async (e) => {
@@ -80,17 +79,27 @@ const Roadmap = () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/add_data",
-        newRoadmap
+        roadmaps.newRoadmap
       );
       if (response.data) {
+        // Optionally you can also add the new roadmap directly to the userRoadmaps
+        // const newRoadmap = response.data; // This depends on your backend response structure
+        // setRoadmaps((prev) => ({
+        //   ...prev,
+        //   userRoadmaps: [...prev.userRoadmaps, newRoadmap],
+        // }));
+
         // Clear new roadmap input
-        setNewRoadmap({
-          title: "",
-          author_name: "",
-          author_desc: "",
-          article_desc: "",
-          content: "",
-        });
+        setRoadmaps((prev) => ({
+          ...prev,
+          newRoadmap: {
+            title: "",
+            author_name: "",
+            author_desc: "",
+            article_desc: "",
+            content: "",
+          },
+        }));
         setShowForm(false); // Optionally hide the form after adding
 
         // Refetch user roadmaps to ensure the display is updated
@@ -112,7 +121,7 @@ const Roadmap = () => {
           style={{ background: "#1a1a1a", borderRadius: "10px" }}
         >
           <CardContent>
-            <form onSubmit={(e) => e.preventDefault()} className="d-flex flex-column gap-3">
+            <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
               <TextField
                 label="Enter a technology stack"
                 variant="outlined"
@@ -122,7 +131,7 @@ const Roadmap = () => {
                 inputProps={{ style: { color: "#000" } }}
                 InputProps={{ style: { backgroundColor: "#fff" } }}
                 value={techStack}
-                onChange={handleSearchChange}
+                onChange={(e) => setTechStack(e.target.value)}
                 required
               />
               <Button
@@ -139,13 +148,41 @@ const Roadmap = () => {
               </Button>
             </form>
 
+            {roadmaps.roadmap.length > 0 ? (
+              <Box className="mt-4 p-3 border rounded bg-dark">
+                <Typography variant="h6" className="mb-3 text-white">
+                  Roadmap for {techStack}:
+                </Typography>
+                <ul className="list-group">
+                  {roadmaps.roadmap.map((item, index) => (
+                    <li
+                      key={index}
+                      className="list-group-item bg-dark text-white"
+                    >
+                      {item.content}
+                    </li>
+                  ))}
+                </ul>
+              </Box>
+            ) : (
+              techStack && (
+                <Typography
+                  variant="body1"
+                  color="error"
+                  className="text-center mt-3"
+                >
+                  No roadmap found for "{techStack}".
+                </Typography>
+              )
+            )}
+
             <Divider className="my-4" />
 
             <Typography variant="h5" className="mt-4 text-white">
               User-Added Roadmaps:
             </Typography>
             <Grid container spacing={3} className="mt-3">
-              {filteredRoadmaps.map((roadmap, index) => (
+              {roadmaps.userRoadmaps.map((roadmap, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
                   <Card
                     className="mt-3 bg-dark text-light shadow-sm"
@@ -203,7 +240,7 @@ const Roadmap = () => {
                   variant="outlined"
                   fullWidth
                   name="title"
-                  value={newRoadmap.title}
+                  value={roadmaps.newRoadmap.title}
                   onChange={handleInputChange}
                   required
                   InputProps={{
@@ -215,7 +252,7 @@ const Roadmap = () => {
                   variant="outlined"
                   fullWidth
                   name="author_name"
-                  value={newRoadmap.author_name}
+                  value={roadmaps.newRoadmap.author_name}
                   onChange={handleInputChange}
                   required
                   InputProps={{
@@ -227,7 +264,7 @@ const Roadmap = () => {
                   variant="outlined"
                   fullWidth
                   name="author_desc"
-                  value={newRoadmap.author_desc}
+                  value={roadmaps.newRoadmap.author_desc}
                   onChange={handleInputChange}
                   required
                   InputProps={{
@@ -239,7 +276,7 @@ const Roadmap = () => {
                   variant="outlined"
                   fullWidth
                   name="article_desc"
-                  value={newRoadmap.article_desc}
+                  value={roadmaps.newRoadmap.article_desc}
                   onChange={handleInputChange}
                   required
                   InputProps={{
@@ -251,7 +288,7 @@ const Roadmap = () => {
                   variant="outlined"
                   fullWidth
                   name="content"
-                  value={newRoadmap.content}
+                  value={roadmaps.newRoadmap.content}
                   onChange={handleInputChange}
                   required
                   InputProps={{
