@@ -1,5 +1,5 @@
 
-# **Select-Stream AI: The Future of Learning and Career Guidance**
+# **Select-Stream AI: The Future of Learning and Career Guidance**🎓
 
 Welcome to **Select-Stream AI**, an advanced AI-powered platform designed to revolutionize the way students and professionals learn and plan their careers. With an intuitive interface, personalized learning recommendations, and insightful career paths, this app is your ultimate companion for navigating the complexities of modern education and career planning.
 
