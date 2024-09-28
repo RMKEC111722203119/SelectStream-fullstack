@@ -1,20 +1,34 @@
-/* Group.css */
-.group-input, .roadmap-input {
-  margin-bottom: 10px;
+.group-input {
   width: 100%;
+  margin-bottom: 10px;
 }
 
-.create-group-button, .submit-roadmap-button {
+.create-group-button,
+.create-roadmap-button {
   margin-top: 10px;
+  border-radius: 8px;
+  background-color: #4caf50;
+  color: white;
+  &:hover {
+    background-color: #388e3c;
+  }
 }
 
-.group-card, .roadmap-card {
-  margin: 10px 0;
-  padding: 10px;
-  background-color: #212121; /* Dark background for cards */
-  color: white; /* Text color for visibility */
+.group-card {
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-5px);
+  }
 }
 
 .roadmaps-list {
   margin-top: 20px;
+}
+
+.roadmap-card {
+  background: #424242;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 10px;
+  color: white;
 }
