@@ -36,7 +36,7 @@ const HomePage = () => {
           variants={fadeInUp}
           transition={{ duration: 0.8 }}
         >
-          Welcome to Our Platform
+          Welcome to <span style={{textDecoration: "underline"}}>Select-Stream</span>
         </motion.h1>
         <motion.p
           className="lead"
