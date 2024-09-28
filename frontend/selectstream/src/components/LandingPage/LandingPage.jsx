@@ -9,6 +9,7 @@ import {
   Logout,
   GroupOutlined,
   VideoCall,
+  AirRounded,
 } from "@mui/icons-material"; // Import new icons
 import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "./LandingPage.css";
@@ -18,6 +19,7 @@ import HomePage from "./utils/HomePage";
 import QuickLearn from "./utils/QuickLearn";
 import Groups from "./utils/Groups"; 
 import CareerAssessment from "./utils/CareerAssessment";
+import FuturePrediction from "./utils/FuturePrediction";
 
 
 const LandingPage = () => {
@@ -33,9 +35,11 @@ const LandingPage = () => {
       case "Roadmap":
         return <Roadmap />;
       case "Groups":
-        return <Groups/>;
-      case "CareerAssessment": 
+        return <Groups />;
+      case "CareerAssessment":
         return <CareerAssessment />;
+      case "futurePrediction":
+        return <FuturePrediction />;
       case "Settings":
         return <h1 style={{ color: "#fff" }}>Settings</h1>;
       default:
@@ -82,6 +86,12 @@ const LandingPage = () => {
               onClick={() => setActiveComponent("CareerAssessment")} // Link to Career Assessment
             >
               <School /> <span className="ms-2">Career Assessment</span>
+            </Nav.Link>
+            <Nav.Link
+              className="text-white"
+              onClick={() => setActiveComponent("futurePrediction")} // Link to Career Assessment
+            >
+              <AirRounded /> <span className="ms-2">Future Prediction</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"
