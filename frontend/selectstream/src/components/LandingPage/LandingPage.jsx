@@ -8,6 +8,7 @@ import {
   Settings as SettingsIcon,
   Logout,
   GroupOutlined,
+  VideoCall,
 } from "@mui/icons-material"; // Import new icons
 import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "./LandingPage.css";
@@ -61,7 +62,7 @@ const LandingPage = () => {
               className="text-white"
               onClick={() => setActiveComponent("selectstream")}
             >
-              <School /> <span className="ms-2">Select-Stream AI</span>
+              <VideoCall /> <span className="ms-2">Select-Stream AI</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"
