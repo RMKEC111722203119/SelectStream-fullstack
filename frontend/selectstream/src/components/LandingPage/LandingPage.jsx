@@ -15,7 +15,8 @@ import { useNavigate } from "react-router-dom";
 import Roadmap from "./utils/Roadmap";
 import HomePage from "./utils/HomePage";
 import QuickLearn from "./utils/QuickLearn";
-import Groups from "./utils/Groups"; // Make sure the path is correct
+import Groups from "./utils/Groups"; 
+import CareerAssessment from "./utils/CareerAssessment";
 
 
 const LandingPage = () => {
@@ -32,6 +33,8 @@ const LandingPage = () => {
         return <Roadmap />;
       case "Groups":
         return <Groups/>;
+      case "CareerAssessment": 
+        return <CareerAssessment />;
       case "Settings":
         return <h1 style={{ color: "#fff" }}>Settings</h1>;
       default:
@@ -72,6 +75,12 @@ const LandingPage = () => {
               onClick={() => setActiveComponent("Groups")} // Link to Groups
             >
               <School /> <span className="ms-2">Group</span>
+            </Nav.Link>
+            <Nav.Link
+              className="text-white"
+              onClick={() => setActiveComponent("CareerAssessment")} // Link to Career Assessment
+            >
+              <School /> <span className="ms-2">Career Assessment</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"
