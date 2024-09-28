@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS  # Import CORS to handle CORS issues
+from flask_cors import CORS
+   # Import CORS to handle CORS issues
 from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -10,12 +11,12 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from langchain.tools import Tool
-from routes import api
-from Data import predefined_roadmaps
+from bestpath import career_assessment  # Import from bestpath.py
+from Data import predefined_roadmaps  # Import data
+from geminifunc import get_gemini_repsonse
+
 # Initialize Flask app
 app = Flask(__name__)
-app.register_blueprint(api)
-# Enable CORS and handle preflight (OPTIONS) requests
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
 API_KEY = "AIzaSyASpU0qAf8xcDgZ6Wqdw-Ts8WJftF0cDFU"
@@ -133,7 +134,7 @@ def process(search_query):
     video_url = f"https://www.youtube.com/watch?v={result['videoId']}"
     return video_url 
 
-# Flask API Endpoint
+# Endpoint to handle quick video search
 @app.route('/quick', methods=['POST'])
 def quick():
     data = request.json
@@ -144,12 +145,43 @@ def quick():
     response = process(querys)
     return jsonify({"response": response})
 
+# Endpoint for career assessment
+@app.route('/career-assessment', methods=['POST'])
+def career_assessment_route():
+    # Get the JSON data from the POST request
+    data = request.json
+    
+    # Extract input parameters
+    aspirations = data.get('aspirations', '')
+    creativeActivities = data.get('creativeActivities', '')
+    education = data.get('education', '')
+    enjoyNumbers = data.get('enjoyNumbers', '')
+    logicalProblems = data.get('logicalProblems', '')
+    passions = data.get('passions', '')
+    skills = data.get('skills', '')
+    workExperience = data.get('workExperience', '')
+    
+    # Call the career_assessment function with the provided inputs
+    result = career_assessment(
+        aspirations, 
+        creativeActivities, 
+        education, 
+        enjoyNumbers, 
+        logicalProblems, 
+        passions, 
+        skills, 
+        workExperience
+    )
+    print(result)
+    # Return the result as JSON
+    return jsonify(result)
 
+# Endpoint to fetch predefined roadmaps
 @app.route('/get_data', methods=['GET'])
 def get_data():
     return jsonify(predefined_roadmaps)
 
-# Endpoint to add/update details in the dictionary
+# Endpoint to add/update details in the predefined roadmaps
 @app.route('/add_data', methods=['POST'])
 def add_data():
     new_data = request.json  # Get the JSON payload from the frontend
@@ -159,10 +191,7 @@ def add_data():
         return jsonify({"message": "Data added successfully!"}), 200
     else:
         return jsonify({"error": "No data provided!"}), 400
-    
 
-    
-    
-
+# Main block to run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)

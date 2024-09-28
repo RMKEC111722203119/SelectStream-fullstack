@@ -25,7 +25,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes } from "firebase/storage"; // For file upload
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist"; // Import from pdfjs-dist
 import axios from "axios"; // For HTTP requests
-
+import ReactMarkdown from "react-markdown";
 // Set the workerSrc to the correct path
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${"2.16.105"}/pdf.worker.js`; // Specify your version of pdf.js here
 
@@ -135,7 +135,7 @@ const CareerAssessment = () => {
         "http://127.0.0.1:5000/career-assessment",
         submissionData
       );
-      setResponseMessage(response.data.message); // Assuming response has a message field
+      setResponseMessage(response.data.content); // Assuming response has a message field
       setDialogOpen(true); // Open dialog to show response
     } catch (error) {
       console.error("Error submitting data: ", error);
@@ -385,7 +385,9 @@ const CareerAssessment = () => {
       <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <DialogTitle>Submission Response</DialogTitle>
         <DialogContent>
-          <Typography>{responseMessage}</Typography>
+          <Typography>
+            <ReactMarkdown>{responseMessage}</ReactMarkdown>
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">
