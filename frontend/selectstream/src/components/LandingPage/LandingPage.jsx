@@ -74,7 +74,7 @@ const LandingPage = () => {
               className="text-white"
               onClick={() => setActiveComponent("Groups")} // Link to Groups
             >
-              <School /> <span className="ms-2">Group</span>
+              <GroupOutlined /> <span className="ms-2">Group</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"
