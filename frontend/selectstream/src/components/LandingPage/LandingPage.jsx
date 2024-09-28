@@ -7,7 +7,6 @@ import {
   School,
   Settings as SettingsIcon,
   Logout,
-  Group,
   GroupOutlined,
 } from "@mui/icons-material"; // Import new icons
 import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
@@ -16,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 import Roadmap from "./utils/Roadmap";
 import HomePage from "./utils/HomePage";
 import QuickLearn from "./utils/QuickLearn";
+import Groups from "./utils/Groups"; 
+import CareerAssessment from "./utils/CareerAssessment";
 
 
 const LandingPage = () => {
@@ -30,8 +31,10 @@ const LandingPage = () => {
         return <QuickLearn />;
       case "Roadmap":
         return <Roadmap />;
-      case "Group":
-        return <Group/>;
+      case "Groups":
+        return <Groups/>;
+      case "CareerAssessment": 
+        return <CareerAssessment />;
       case "Settings":
         return <h1 style={{ color: "#fff" }}>Settings</h1>;
       default:
@@ -66,11 +69,18 @@ const LandingPage = () => {
             >
               <Map /> <span className="ms-2">Personalized Roadmap</span>
             </Nav.Link>
+
             <Nav.Link
-              className="text-white" onClick={()=>setActiveComponent=== "Group" ? "active": ""}
-              onClick={() => setActiveComponent("Group")}
+              className="text-white"
+              onClick={() => setActiveComponent("Groups")} // Link to Groups
             >
               <GroupOutlined /> <span className="ms-2">Group</span>
+            </Nav.Link>
+            <Nav.Link
+              className="text-white"
+              onClick={() => setActiveComponent("CareerAssessment")} // Link to Career Assessment
+            >
+              <School /> <span className="ms-2">Career Assessment</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"
