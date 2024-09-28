@@ -1,4 +1,3 @@
-// utils/CareerAssessment.jsx
 import React, { useState } from "react";
 import {
   Container,
@@ -10,61 +9,78 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
-  Box,
-  styled,
   Snackbar,
   Alert,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Fade,
 } from "@mui/material";
-import { UploadFile } from "@mui/icons-material"; // Icon for upload
-import { db } from "../../../firebase.js"; // Import Firestore
-import { collection, addDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes } from "firebase/storage"; // For file upload
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist"; // Import from pdfjs-dist
-import axios from "axios"; // For HTTP requests
+import { UploadFile } from "@mui/icons-material";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
+import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import { styled } from "@mui/system";
 
-// Set the workerSrc to the correct path
-GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${"2.16.105"}/pdf.worker.js`; // Specify your version of pdf.js here
+// Set the workerSrc to the correct path for pdf.js
+GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${"2.16.105"}/pdf.worker.js`;
 
-const StyledContainer = styled(Container)({
-  backgroundColor: "#121212", // Dark background
-  padding: "2rem",
-  borderRadius: "8px",
+const StyledContainer = styled(Container)(({ theme }) => ({
+  backgroundColor: "#1A1A1A", // Dark background
+  padding: "2.5rem",
+  borderRadius: "10px",
   marginTop: "2rem",
   color: "#fff",
-});
+  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+  transition: "all 0.3s ease-in-out", // Smooth transition effect
+  "&:hover": {
+    transform: "scale(1.02)", // Subtle zoom effect on hover
+  },
+}));
 
 const StyledTextArea = styled(TextField)({
-  marginBottom: "1rem",
-  backgroundColor: "#1e1e1e", // Darker text area background
-  borderRadius: "4px",
+  marginBottom: "1.5rem",
+  backgroundColor: "#252525",
+  borderRadius: "5px",
   "& .MuiOutlinedInput-root": {
     "& fieldset": {
-      borderColor: "#555", // Border color for dark theme
+      borderColor: "#444",
     },
     "&:hover fieldset": {
-      borderColor: "#777", // Border color on hover
+      borderColor: "#666",
     },
     "&.Mui-focused fieldset": {
-      borderColor: "#fff", // Focus border color
+      borderColor: "#FFF",
     },
   },
   "& .MuiInputBase-input": {
-    color: "#fff", // Text color in the input
+    color: "#fff",
   },
+  transition: "border-color 0.3s ease",
 });
 
-const StyledUploadButton = styled(Button)({
-  backgroundColor: "#1e1e1e",
+const StyledUploadButton = styled(Button)(({ theme }) => ({
+  backgroundColor: "#333",
   color: "#fff",
   marginTop: "1rem",
   "&:hover": {
-    backgroundColor: "#333",
+    backgroundColor: "#555",
   },
-});
+  transition: "background-color 0.3s ease",
+}));
+
+const SubmitButton = styled(Button)(({ theme }) => ({
+  marginTop: "1.5rem",
+  backgroundColor: "#4CAF50",
+  color: "#fff",
+  padding: "10px 20px",
+  borderRadius: "5px",
+  "&:hover": {
+    backgroundColor: "#45A049",
+  },
+  transition: "background-color 0.3s ease",
+}));
 
 const CareerAssessment = () => {
   const [document, setDocument] = useState(null);
@@ -85,7 +101,7 @@ const CareerAssessment = () => {
 
   const handleFileChange = (e) => {
     setDocument(e.target.files[0]);
-    setExtractedText(""); // Clear extracted text on new file selection
+    setExtractedText("");
   };
 
   const handleQuestionChange = (e) => {
@@ -105,7 +121,7 @@ const CareerAssessment = () => {
     const fileReader = new FileReader();
     fileReader.onload = async () => {
       const pdfData = new Uint8Array(fileReader.result);
-      const pdfDoc = await pdfjs.getDocument(pdfData).promise; // Use pdfjs.getDocument
+      const pdfDoc = await getDocument(pdfData).promise;
 
       let text = "";
       for (let i = 1; i <= pdfDoc.numPages; i++) {
@@ -124,26 +140,22 @@ const CareerAssessment = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare data for submission
     const submissionData = {
       ...answers,
     };
 
     try {
-      // Send data to Flask backend
       const response = await axios.post(
         "http://127.0.0.1:5000/career-assessment",
         submissionData
       );
-      setResponseMessage(response.data.message); // Assuming response has a message field
-      setDialogOpen(true); // Open dialog to show response
+      setResponseMessage(response.data.content);
+      setDialogOpen(true);
     } catch (error) {
-      console.error("Error submitting data: ", error);
       setResponseMessage("There was an error submitting the data.");
-      setDialogOpen(true); // Open dialog to show error
+      setDialogOpen(true);
     }
 
-    // Reset form after submission
     setDocument(null);
     setAnswers({
       logicalProblems: "",
@@ -159,238 +171,226 @@ const CareerAssessment = () => {
 
   return (
     <>
-      <Typography variant="h4" className="text-white mt-2 mb-2" gutterBottom>
-        Career Analytics 📊
-      </Typography>
-      <StyledContainer>
-        <form onSubmit={handleSubmit}>
-          <Grid item xs={12} className="mb-5">
-            <Typography variant="h6" sx={{ color: "#fff" }}>
-              Upload Document: <span className="font-sm">(Only PDFs)</span>
-            </Typography>
-            <StyledUploadButton
-              component="label"
-              variant="outlined"
-              startIcon={<UploadFile />}
-            >
-              {document ? document.name : "Choose File"}
-              <input
-                type="file"
-                hidden
-                accept="application/pdf"
-                onChange={handleFileChange}
-              />
-            </StyledUploadButton>
-            {document && (
-              <Button
-                variant="outlined"
-                onClick={handleExtractText}
-                sx={{ marginTop: "1rem", color: "#fff" }}
-              >
-                Extract Text from PDF
-              </Button>
-            )}
-          </Grid>
-          <Grid container spacing={2}>
-            {/* Logical Problems */}
-            <Grid item xs={12}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend" sx={{ color: "#fff" }}>
-                  Are you more interested in solving logical problems?
-                </FormLabel>
-                <FormControlLabel
-                  control={
-                    <Radio
-                      onChange={handleQuestionChange}
-                      name="logicalProblems"
-                      value="Yes"
-                      sx={{ color: "#fff" }}
-                    />
-                  }
-                  label="Yes"
-                />
-                <FormControlLabel
-                  control={
-                    <Radio
-                      onChange={handleQuestionChange}
-                      name="logicalProblems"
-                      value="No"
-                      sx={{ color: "#fff" }}
-                    />
-                  }
-                  label="No"
-                />
-              </FormControl>
-            </Grid>
-
-            {/* Enjoy Working with Numbers */}
-            <Grid item xs={12}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend" sx={{ color: "#fff" }}>
-                  Do you enjoy working with numbers?
-                </FormLabel>
-                <FormControlLabel
-                  control={
-                    <Radio
-                      onChange={handleQuestionChange}
-                      name="enjoyNumbers"
-                      value="Yes"
-                      sx={{ color: "#fff" }}
-                    />
-                  }
-                  label="Yes"
-                />
-                <FormControlLabel
-                  control={
-                    <Radio
-                      onChange={handleQuestionChange}
-                      name="enjoyNumbers"
-                      value="No"
-                      sx={{ color: "#fff" }}
-                    />
-                  }
-                  label="No"
-                />
-              </FormControl>
-            </Grid>
-
-            {/* Prefer Creative Activities */}
-            <Grid item xs={12}>
-              <FormControl component="fieldset">
-                <FormLabel component="legend" sx={{ color: "#fff" }}>
-                  Do you prefer creative activities?
-                </FormLabel>
-                <FormControlLabel
-                  control={
-                    <Radio
-                      onChange={handleQuestionChange}
-                      name="creativeActivities"
-                      value="Yes"
-                      sx={{ color: "#fff" }}
-                    />
-                  }
-                  label="Yes"
-                />
-                <FormControlLabel
-                  control={
-                    <Radio
-                      onChange={handleQuestionChange}
-                      name="creativeActivities"
-                      value="No"
-                      sx={{ color: "#fff" }}
-                    />
-                  }
-                  label="No"
-                />
-              </FormControl>
-            </Grid>
-
-            {/* Aspirations and Interests */}
-            <Grid item xs={12}>
-              <Typography variant="h6" className="mb-3" sx={{ color: "#fff" }}>
-                Aspirations and Interests
+      <Fade in timeout={800}>
+        <Typography variant="h4" className="text-white mt-2 mb-2" gutterBottom>
+          Career Analytics 📊
+        </Typography>
+      </Fade>
+      <Fade in timeout={1200}>
+        <StyledContainer>
+          <form onSubmit={handleSubmit}>
+            <Grid item xs={12} className="mb-5">
+              <Typography variant="h6" sx={{ color: "#fff" }}>
+                Upload Document: <span className="font-sm">(Only PDFs)</span>
               </Typography>
-              <StyledTextArea
-                label="What are your career aspirations?"
-                name="aspirations"
-                onChange={handleQuestionChange}
-                rows={2}
-                fullWidth
+              <StyledUploadButton
+                component="label"
                 variant="outlined"
-                multiline
-                InputLabelProps={{
-                  style: { color: "#808080" }, // Set label color
-                }}
-              />
-              <StyledTextArea
-                label="What are your passions?"
-                name="passions"
-                onChange={handleQuestionChange}
-                rows={2}
-                fullWidth
-                variant="outlined"
-                multiline
-                InputLabelProps={{
-                  style: { color: "#808080" }, // Set label color
-                }}
-              />
-              <StyledTextArea
-                label="What are your skills?"
-                name="skills"
-                onChange={handleQuestionChange}
-                rows={2}
-                fullWidth
-                variant="outlined"
-                multiline
-                InputLabelProps={{
-                  style: { color: "#808080" }, // Set label color
-                }}
-              />
-              <StyledTextArea
-                label="Previous Work Experience"
-                name="workExperience"
-                onChange={handleQuestionChange}
-                rows={2}
-                fullWidth
-                variant="outlined"
-                multiline
-                InputLabelProps={{
-                  style: { color: "#808080" }, // Set label color
-                }}
-              />
-              <StyledTextArea
-                label="Education"
-                name="education"
-                onChange={handleQuestionChange}
-                rows={2}
-                fullWidth
-                variant="outlined"
-                multiline
-                InputLabelProps={{
-                  style: { color: "#808080" }, // Set label color
-                }}
-              />
+                startIcon={<UploadFile />}
+              >
+                {document ? document.name : "Choose File"}
+                <input
+                  type="file"
+                  hidden
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                />
+              </StyledUploadButton>
+              {document && (
+                <Button
+                  variant="outlined"
+                  onClick={handleExtractText}
+                  sx={{ marginTop: "1rem", color: "#fff" }}
+                >
+                  Extract Text from PDF
+                </Button>
+              )}
             </Grid>
-          </Grid>
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{
-              marginTop: "1.5rem",
-              backgroundColor: "#4CAF50",
-              color: "#fff",
-            }}
-          >
-            Submit
-          </Button>
-        </form>
-      </StyledContainer>
 
-      {/* Snackbar for text extraction */}
+            <Grid container spacing={2}>
+              {/* Logical Problems */}
+              <Grid item xs={12}>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend" sx={{ color: "#fff" }}>
+                    Are you more interested in solving logical problems?
+                  </FormLabel>
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        onChange={handleQuestionChange}
+                        name="logicalProblems"
+                        value="Yes"
+                        sx={{ color: "#fff" }}
+                      />
+                    }
+                    label="Yes"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        onChange={handleQuestionChange}
+                        name="logicalProblems"
+                        value="No"
+                        sx={{ color: "#fff" }}
+                      />
+                    }
+                    label="No"
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Enjoy Working with Numbers */}
+              <Grid item xs={12}>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend" sx={{ color: "#fff" }}>
+                    Do you enjoy working with numbers?
+                  </FormLabel>
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        onChange={handleQuestionChange}
+                        name="enjoyNumbers"
+                        value="Yes"
+                        sx={{ color: "#fff" }}
+                      />
+                    }
+                    label="Yes"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        onChange={handleQuestionChange}
+                        name="enjoyNumbers"
+                        value="No"
+                        sx={{ color: "#fff" }}
+                      />
+                    }
+                    label="No"
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Creative Activities */}
+              <Grid item xs={12}>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend" sx={{ color: "#fff" }}>
+                    Do you prefer creative activities?
+                  </FormLabel>
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        onChange={handleQuestionChange}
+                        name="creativeActivities"
+                        value="Yes"
+                        sx={{ color: "#fff" }}
+                      />
+                    }
+                    label="Yes"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        onChange={handleQuestionChange}
+                        name="creativeActivities"
+                        value="No"
+                        sx={{ color: "#fff" }}
+                      />
+                    }
+                    label="No"
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Aspirations and Interests */}
+              <Grid item xs={12}>
+                <Typography
+                  variant="h6"
+                  className="mb-3"
+                  sx={{ color: "#fff" }}
+                >
+                  Aspirations and Interests
+                </Typography>
+                <StyledTextArea
+                  label="What are your career aspirations?"
+                  name="aspirations"
+                  onChange={handleQuestionChange}
+                  rows={2}
+                  fullWidth
+                  variant="outlined"
+                  
+                  multiline
+                />
+                <StyledTextArea
+                  label="What are you most passionate about?"
+                  name="passions"
+                  onChange={handleQuestionChange}
+                  rows={2}
+                  fullWidth
+                  variant="outlined"
+                  multiline
+                />
+                <StyledTextArea
+                  label="What skills do you possess?"
+                  name="skills"
+                  onChange={handleQuestionChange}
+                  rows={2}
+                  fullWidth
+                  variant="outlined"
+                  multiline
+                />
+                <StyledTextArea
+                  label="Summarize your work experience."
+                  name="workExperience"
+                  onChange={handleQuestionChange}
+                  rows={3}
+                  fullWidth
+                  variant="outlined"
+                  multiline
+                />
+                <StyledTextArea
+                  label="Detail your education."
+                  name="education"
+                  onChange={handleQuestionChange}
+                  rows={3}
+                  fullWidth
+                  variant="outlined"
+                  multiline
+                />
+              </Grid>
+            </Grid>
+
+            <SubmitButton
+              type="submit"
+              variant="contained"
+              className="btn"
+              style={{ background: "#ff2000" }}
+            >
+              Submit
+            </SubmitButton>
+          </form>
+        </StyledContainer>
+      </Fade>
+
+      {/* Snackbar Notification */}
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={6000}
+        autoHideDuration={3000}
         onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          Text extracted from PDF!
+        <Alert onClose={handleSnackbarClose} severity="success">
+          Text extracted successfully!
         </Alert>
       </Snackbar>
 
-      {/* Dialog for submission response */}
+      {/* Dialog for Displaying API Response */}
       <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Submission Response</DialogTitle>
+        <DialogTitle>Response from Intelli</DialogTitle>
         <DialogContent>
-          <Typography>{responseMessage}</Typography>
+          <ReactMarkdown>{responseMessage}</ReactMarkdown>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Close
-          </Button>
+          <Button onClick={handleDialogClose}>Close</Button>
         </DialogActions>
       </Dialog>
     </>
