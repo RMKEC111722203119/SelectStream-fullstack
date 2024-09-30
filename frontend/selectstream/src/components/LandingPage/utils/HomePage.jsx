@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { Container, Row, Col, Card, Button, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,6 +10,8 @@ import {
   FaRocket,
 } from "react-icons/fa"; // Import additional icons
 import { motion } from "framer-motion"; // Import motion
+// Import Lenis
+
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -20,10 +22,14 @@ const HomePage = () => {
     visible: { opacity: 1, y: 0 },
   };
 
+  // Initialize Lenis for smooth scrolling
+  
+
+
   return (
     <div
       className="home-page"
-      style={{ backgroundColor: "#1a1a1a", minHeight: "100vh" }}
+      style={{ backgroundColor: "#040404", minHeight: "100vh" }}
     >
       <header
         className="text-white text-center py-5"
@@ -36,7 +42,7 @@ const HomePage = () => {
           variants={fadeInUp}
           transition={{ duration: 0.8 }}
         >
-          Welcome to <span style={{textDecoration: "underline"}}>Select-Stream</span>
+          Welcome to <span style={ {fontWeight: "bold", }}>Select-Stream</span>
         </motion.h1>
         <motion.p
           className="lead"
@@ -172,7 +178,7 @@ const HomePage = () => {
             variant="light"
             className="text-dark mx-auto"
             style={{ maxWidth: "600px" }}
-          >
+            >
             "This platform has transformed my learning experience! The courses
             are comprehensive, and the community is supportive."
             <br /> — Happy Learner
@@ -197,7 +203,7 @@ const HomePage = () => {
 
       <footer className="text-white text-center py-3">
         <p>
-          &copy; {new Date().getFullYear()} Intelli-Assistant. All Rights
+          &copy; {new Date().getFullYear()} Select-Stream AI. All Rights
           Reserved.
         </p>
       </footer>

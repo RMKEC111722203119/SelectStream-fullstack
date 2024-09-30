@@ -16,7 +16,7 @@ from geminifunc import get_gemini_repsonse
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173/"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
 API_KEY = "AIzaSyASpU0qAf8xcDgZ6Wqdw-Ts8WJftF0cDFU"
 GROQ_API_KEY = "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"
@@ -104,13 +104,13 @@ def process(search_query):
     query = f"provide 10 questions on {search_query}"
 
     process_tool1 = Tool(
-        __name__='Process Video 1 Transcript',
+        name='Process Video 1 Transcript',
         func=lambda q: process_transcript_and_query(video_transcript1, q),
         description="Useful for processing transcript and answering queries."
     )
 
     process_tool2 = Tool(
-        __name__='Process Video 2 Transcript',
+        name='Process Video 2 Transcript',
         func=lambda q: process_transcript_and_query(video_transcript2, q),
         description="Useful for processing transcript and answering queries."
     )
@@ -190,12 +190,27 @@ def add_data():
         return jsonify({"message": "Data added successfully!"}), 200
     else:
         return jsonify({"error": "No data provided!"}), 400
-    
-def futureroute(skills) :
-    llm = ChatGroq(model="llama3-8b-8192", groq_api_key=GROQ_API_KEY)
-    return llm.invoke(f"You are the expert in knowing the future trends and skill gaps in the industry. Can you tell me what are the future career opportunities based on the {skills} I'm interested in learning or improving?")
 
-@app.route('/scope', methods=['POST'])
+
+@app.route('/futureroute', methods=['POST'])
+def futureroute():
+    data = request.json  # Extract the JSON data from the request
+    skills = data.get('skills')  # Extract skills from the JSON data
+
+    if not skills:  # Check if skills were provided
+        return jsonify({"error": "Skills are required."}), 400  # Return an error response if skills are missing
+
+    # Call the ChatGroq model with the skills
+    llm = ChatGroq(model="llama3-8b-8192", groq_api_key=GROQ_API_KEY)
+    response_message = llm.invoke(
+        f"You are the expert in knowing the future trends and skill gaps in the industry. "
+        f"Can you tell me what are the future career opportunities based on the {skills} I'm interested in learning or improving?"
+    )
+    
+    # Assuming response_message has a method or property to get the text
+    response_text = response_message.content
+    return jsonify({"answer":response_text}) # Return the AI's response as JSON
+
 def scope():
     data = request.json
     if not data or 'query' not in data:

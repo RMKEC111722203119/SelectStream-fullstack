@@ -66,7 +66,7 @@ const LandingPage = () => {
               className="text-white"
               onClick={() => setActiveComponent("selectstream")}
             >
-              <VideoCall /> <span className="ms-2">Select-Stream AI</span>
+              <VideoCall /> <span className="ms-2">QuickLearn</span>
             </Nav.Link>
             <Nav.Link
               className="text-white"

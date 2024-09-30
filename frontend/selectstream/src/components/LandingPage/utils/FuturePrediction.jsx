@@ -5,12 +5,13 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const FuturePrediction = () => {
-  const [query, setQuery] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [query, setQuery] = useState(""); // State for user input
+  const [messages, setMessages] = useState([]); // State for chat messages
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!query) return;
+    e.preventDefault(); // Prevent form submission
+
+    if (!query) return; // Don't submit if query is empty
 
     // Add the user's message to the chat
     setMessages((prevMessages) => [
@@ -21,9 +22,9 @@ const FuturePrediction = () => {
     try {
       // Make a POST request to your Flask backend
       const response = await axios.post(
-        "http://127.0.0.1:5000/scope",
+        "http://127.0.0.1:5000/futureroute",
         {
-          query,
+          skills: query, // Send the user's skills as 'skills'
         },
         {
           headers: {
@@ -32,23 +33,17 @@ const FuturePrediction = () => {
         }
       );
 
-      const responseMessage = response.data.answer;
+      const responseMessage = response.data.answer; // Extract the answer as a string
 
-      // Check if the response contains a YouTube link
-      const youtubeLinkPattern =
-        /https?:\/\/(www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/;
-      const isYouTubeLink = youtubeLinkPattern.test(responseMessage);
-
-      // Add the response message to the chat
+      // Add the response message from the AI to the chat
       setMessages((prevMessages) => [
         ...prevMessages,
         {
-          text: isYouTubeLink ? responseMessage : response.data.answer,
+          text: responseMessage, // Directly add the response message
           sender: "bot",
-          isVideo: isYouTubeLink, // Flag to identify if the response is a video
         },
       ]);
-      setQuery(""); // Clear the input field
+      setQuery(""); // Clear the input field after submission
     } catch (error) {
       console.error("Error fetching prediction:", error);
       setMessages((prevMessages) => [
@@ -69,7 +64,7 @@ const FuturePrediction = () => {
           mx: "auto",
           my: 4,
           p: 2,
-          bgcolor: "#121212",
+          bgcolor: "#040404",
           borderRadius: 2,
           boxShadow: 3,
         }}
@@ -93,35 +88,22 @@ const FuturePrediction = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              {msg.isVideo ? (
-                <iframe
-                  width="100%"
-                  height="315"
-                  src={`https://www.youtube.com/embed/${
-                    msg.text.split("v=")[1]
-                  }`}
-                  title="YouTube video"
-                  frameBorder="0"
-                  allowFullScreen
-                />
-              ) : (
-                <Typography
-                  variant="body1"
-                  align={msg.sender === "user" ? "right" : "left"}
-                  sx={{
-                    bgcolor: msg.sender === "user" ? "primary.main" : "#424242",
-                    color: "white",
-                    borderRadius: 2,
-                    padding: "10px",
-                    margin: "10px 0",
-                    maxWidth: "80%",
-                    display: "inline-block",
-                    boxShadow: 1,
-                  }}
-                >
-                  {msg.text}
-                </Typography>
-              )}
+              <Typography
+                variant="body1"
+                align={msg.sender === "user" ? "right" : "left"}
+                sx={{
+                  bgcolor: msg.sender === "user" ? "primary.main" : "#424242",
+                  color: "white",
+                  borderRadius: 2,
+                  padding: "10px",
+                  margin: "10px 0",
+                  maxWidth: "80%",
+                  display: "inline-block",
+                  boxShadow: 1,
+                }}
+              >
+                {msg.text}
+              </Typography>
             </motion.div>
           ))}
         </Paper>
@@ -132,7 +114,7 @@ const FuturePrediction = () => {
           <TextField
             variant="outlined"
             fullWidth
-            label="Type your query..."
+            label="Enter your skills or interests..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             sx={{

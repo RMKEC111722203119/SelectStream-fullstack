@@ -27,7 +27,7 @@ import { styled } from "@mui/system";
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${"2.16.105"}/pdf.worker.js`;
 
 const StyledContainer = styled(Container)(({ theme }) => ({
-  backgroundColor: "#1A1A1A", // Dark background
+  backgroundColor: "#040404", // Dark background
   padding: "2.5rem",
   borderRadius: "10px",
   marginTop: "2rem",
@@ -41,7 +41,7 @@ const StyledContainer = styled(Container)(({ theme }) => ({
 
 const StyledTextArea = styled(TextField)({
   marginBottom: "1.5rem",
-  backgroundColor: "#252525",
+  backgroundColor: "#ffffff",
   borderRadius: "5px",
   "& .MuiOutlinedInput-root": {
     "& fieldset": {

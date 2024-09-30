@@ -146,7 +146,7 @@ const Roadmap = () => {
       <Container className="mt-5 p-3">
         <Card
           className="text-white"
-          style={{ background: "#1a1a1a", borderRadius: "10px" }}
+          style={{ background: "#040404", borderRadius: "10px" }}
         >
           <CardContent>
             <form

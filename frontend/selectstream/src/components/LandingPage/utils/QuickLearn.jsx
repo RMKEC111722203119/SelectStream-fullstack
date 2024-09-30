@@ -23,7 +23,8 @@ const QuickLearn = () => {
     if (!query) return; // Prevent empty search
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/quick`, {
+      const response = await fetch('http://127.0.0.1:5000/quick', {
+        query: query,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +61,7 @@ const QuickLearn = () => {
         transition={{ duration: 0.6 }}
       >
         Welcome to{" "}
-        <span style={{ textDecoration: "underline" }}>Select-Stream AI</span> 🎥
+        <span style={{ font:"bold"}}>Quick Learn</span> 🎥
       </motion.p>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
