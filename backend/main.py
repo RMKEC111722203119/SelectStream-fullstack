@@ -190,6 +190,26 @@ def add_data():
         return jsonify({"message": "Data added successfully!"}), 200
     else:
         return jsonify({"error": "No data provided!"}), 400
+    
+def futureroute(skills) :
+    llm = ChatGroq(model="llama3-8b-8192", groq_api_key=GROQ_API_KEY)
+    return llm.invoke(f"You are the expert in knowing the future trends and skill gaps in the industry. Can you tell me what are the future career opportunities based on the {skills} I'm interested in learning or improving?")
+
+@app.route('/scope', methods=['POST'])
+def scope():
+    data = request.json
+    if not data or 'query' not in data:
+        return jsonify({"error": "Invalid data"}), 400
+    
+    # Process the query and return the result
+    # Make sure to handle any exceptions or errors that may arise during processing
+    try:
+        result = process(data['query'])
+        return jsonify({"answer": result})
+    except Exception as e:
+        print(f"Error processing request: {e}")
+        return jsonify({"error": "An error occurred"}), 500
+
 
 # __main__ block to run the Flask app
 if __name__ == '__main__':

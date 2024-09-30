@@ -17,7 +17,7 @@ import {
   arrayUnion,
   onSnapshot,
 } from "firebase/firestore";
-import "./Group.css";
+import "./Group.css"; // Make sure to update your CSS file with the new styles
 
 const Groups = () => {
   const [groupName, setGroupName] = useState("");
@@ -32,7 +32,6 @@ const Groups = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [roadmaps, setRoadmaps] = useState([]);
 
-  // Fetch groups from Firestore on component mount
   useEffect(() => {
     const fetchGroups = async () => {
       const querySnapshot = await getDocs(collection(db, "groups"));
@@ -46,7 +45,6 @@ const Groups = () => {
     fetchGroups();
   }, []);
 
-  // Handle creating a new group
   const handleCreateGroup = async () => {
     if (groupName.trim()) {
       try {
@@ -65,7 +63,6 @@ const Groups = () => {
     }
   };
 
-  // Handle creating a new roadmap for a selected group
   const handleCreateRoadmap = async () => {
     if (selectedGroup && roadmap.title.trim()) {
       try {
@@ -75,7 +72,7 @@ const Groups = () => {
         });
 
         setRoadmap({ title: "", author: "", description: "", content: "" });
-        fetchRoadmaps(selectedGroup); // Refetch roadmaps to update the list
+        fetchRoadmaps(selectedGroup);
         setShowRoadmapForm(false);
       } catch (error) {
         console.error("Error adding roadmap: ", error);
@@ -83,14 +80,12 @@ const Groups = () => {
     }
   };
 
-  // Handle selecting a group to add a roadmap
   const handleSelectGroup = (group) => {
     setSelectedGroup(group);
-    fetchRoadmaps(group); // Fetch roadmaps when a group is selected
+    fetchRoadmaps(group);
     setShowRoadmapForm(true);
   };
 
-  // Fetch roadmaps of the selected group from Firestore
   const fetchRoadmaps = (group) => {
     const groupDocRef = doc(db, "groups", group.id);
     onSnapshot(groupDocRef, (doc) => {
@@ -101,77 +96,92 @@ const Groups = () => {
   };
 
   return (
-    <Container>
-      <Typography variant="h5" className="text-white mt-2 mb-2">
-        Create Group
-      </Typography>
-      <TextField
-        variant="outlined"
-        placeholder="Enter Group Name"
-        value={groupName}
-        onChange={(e) => setGroupName(e.target.value)}
-        className="group-input"
-        InputProps={{
-          style: { color: "white", borderRadius: "8px" },
-        }}
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "12px",
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-            "&:hover fieldset": {
-              borderColor: "#80deea",
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: "#4fc3f7",
-            },
-          },
-          "& .MuiOutlinedInput-input": {
-            color: "white",
-          },
-          "& .MuiInputLabel-root": {
-            color: "#b0bec5",
-          },
-        }}
-      />
-
-      <Button
-        variant="contained"
-        onClick={handleCreateGroup}
-        className="create-group-button mt-2"
+    <Container maxWidth="md" sx={{ padding: "20px 0" }}>
+      <Typography
+        variant="h4"
+        className="text-white"
+        sx={{ color: "#f5f5f5", marginBottom: "25px", textAlign: "center" }}
       >
-        Create Group
-      </Button>
+        Manage Your Groups
+      </Typography>
 
-      <Typography variant="h6" className="text-white mt-4">
+      <Box sx={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+        <TextField
+          variant="outlined"
+          placeholder="Enter Group Name"
+          value={groupName}
+          onChange={(e) => setGroupName(e.target.value)}
+          sx={{
+            flexGrow: 1,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "12px",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              "&:hover fieldset": { borderColor: "#80deea" },
+              "&.Mui-focused fieldset": { borderColor: "#4fc3f7" },
+            },
+            "& .MuiOutlinedInput-input": { color: "white" },
+          }}
+        />
+        <Button
+          variant="contained"
+          onClick={handleCreateGroup}
+          sx={{
+            borderRadius: "12px",
+            backgroundColor: "#ff2000",
+            padding: "10px 20px",
+            transition: "transform 0.3s ease",
+            "&:hover": {
+              backgroundColor: "#ff2000",
+              transform: "scale(1.05)",
+            },
+          }}
+        >
+          Create Group
+        </Button>
+      </Box>
+
+      <Typography
+        variant="h5"
+        className="text-white"
+        sx={{ color: "#f5f5f5", marginTop: "20px" }}
+      >
         Existing Groups
       </Typography>
+
       {groups.length > 0 ? (
         groups.map((group) => (
           <Card
             key={group.id}
-            className="group-card"
             onClick={() => handleSelectGroup(group)}
+            className="group-card"
             sx={{
               margin: "10px 0",
-              padding: "10px",
+              padding: "15px",
               cursor: "pointer",
-              "&:hover": { backgroundColor: "#f0f4f8" },
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              "&:hover": {
+                transform: "scale(1.02)",
+                boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.2)",
+              },
             }}
           >
-            <Typography variant="body1" className="group-name">
+            <Typography variant="h6" sx={{ color: "#212121" }}>
               {group.name}
             </Typography>
           </Card>
         ))
       ) : (
-        <Typography variant="body1" className="text-white">
+        <Typography variant="body1" sx={{ color: "#b0bec5" }}>
           No groups created yet.
         </Typography>
       )}
 
       {showRoadmapForm && selectedGroup && (
-        <Box className="roadmap-form" sx={{ marginTop: "20px" }}>
-          <Typography variant="h6" className="text-white mt-4">
+        <Box sx={{ marginTop: "20px" }}>
+          <Typography
+            variant="h5"
+            sx={{ color: "#f5f5f5", marginBottom: "10px" }}
+          >
             Create Roadmap for {selectedGroup.name}
           </Typography>
 
@@ -180,27 +190,19 @@ const Groups = () => {
             placeholder="Title"
             value={roadmap.title}
             onChange={(e) => setRoadmap({ ...roadmap, title: e.target.value })}
-            className="roadmap-input mb-3"
             required
             error={!roadmap.title.trim()}
             helperText={!roadmap.title.trim() ? "Title is required." : ""}
             sx={{
+              width: "100%",
+              marginBottom: "10px",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "12px",
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
-                "&:hover fieldset": {
-                  borderColor: "#80deea",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#4fc3f7",
-                },
+                "&:hover fieldset": { borderColor: "#80deea" },
+                "&.Mui-focused fieldset": { borderColor: "#4fc3f7" },
               },
-              "& .MuiOutlinedInput-input": {
-                color: "white",
-              },
-              "& .MuiInputLabel-root": {
-                color: "#b0bec5",
-              },
+              "& .MuiOutlinedInput-input": { color: "white" },
             }}
           />
 
@@ -209,24 +211,16 @@ const Groups = () => {
             placeholder="Author"
             value={roadmap.author}
             onChange={(e) => setRoadmap({ ...roadmap, author: e.target.value })}
-            className="roadmap-input mb-3"
             sx={{
+              width: "100%",
+              marginBottom: "10px",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "12px",
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
-                "&:hover fieldset": {
-                  borderColor: "#80deea",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#4fc3f7",
-                },
+                "&:hover fieldset": { borderColor: "#80deea" },
+                "&.Mui-focused fieldset": { borderColor: "#4fc3f7" },
               },
-              "& .MuiOutlinedInput-input": {
-                color: "white",
-              },
-              "& .MuiInputLabel-root": {
-                color: "#b0bec5",
-              },
+              "& .MuiOutlinedInput-input": { color: "white" },
             }}
           />
 
@@ -237,24 +231,16 @@ const Groups = () => {
             onChange={(e) =>
               setRoadmap({ ...roadmap, description: e.target.value })
             }
-            className="roadmap-input mb-3"
             sx={{
+              width: "100%",
+              marginBottom: "10px",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "12px",
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
-                "&:hover fieldset": {
-                  borderColor: "#80deea",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#4fc3f7",
-                },
+                "&:hover fieldset": { borderColor: "#80deea" },
+                "&.Mui-focused fieldset": { borderColor: "#4fc3f7" },
               },
-              "& .MuiOutlinedInput-input": {
-                color: "white",
-              },
-              "& .MuiInputLabel-root": {
-                color: "#b0bec5",
-              },
+              "& .MuiOutlinedInput-input": { color: "white" },
             }}
           />
 
@@ -265,31 +251,32 @@ const Groups = () => {
             onChange={(e) =>
               setRoadmap({ ...roadmap, content: e.target.value })
             }
-            className="roadmap-input"
             sx={{
+              width: "100%",
+              marginBottom: "10px",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "12px",
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
-                "&:hover fieldset": {
-                  borderColor: "#80deea",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#4fc3f7",
-                },
+                "&:hover fieldset": { borderColor: "#80deea" },
+                "&.Mui-focused fieldset": { borderColor: "#4fc3f7" },
               },
-              "& .MuiOutlinedInput-input": {
-                color: "white",
-              },
-              "& .MuiInputLabel-root": {
-                color: "#b0bec5",
-              },
+              "& .MuiOutlinedInput-input": { color: "white" },
             }}
           />
 
           <Button
             variant="contained"
             onClick={handleCreateRoadmap}
-            className="create-roadmap-button mt-2"
+            sx={{
+              borderRadius: "12px",
+              backgroundColor: "#ff2000",
+              padding: "10px 20px",
+              transition: "transform 0.3s ease",
+              "&:hover": {
+                backgroundColor: "#ff2000",
+                transform: "scale(1.05)",
+              },
+            }}
           >
             Create Roadmap
           </Button>
@@ -297,34 +284,35 @@ const Groups = () => {
       )}
 
       {roadmaps.length > 0 && (
-        <Box className="roadmaps-list mt-4">
-          <Typography variant="h6" className="text-white">
-            Roadmaps for {selectedGroup?.name}
+        <Box sx={{ marginTop: "20px" }}>
+          <Typography
+            variant="h5"
+            sx={{ color: "#f5f5f5", marginBottom: "10px" }}
+          >
+            Roadmaps for {selectedGroup.name}
           </Typography>
-
           {roadmaps.map((roadmap, index) => (
             <Card
               key={index}
-              className="roadmap-card mt-2"
               sx={{
-                padding: "20px",
-                margin: "10px 0",
+                marginBottom: "10px",
+                padding: "15px",
                 borderRadius: "12px",
-                backgroundColor: "#263238",
+                backgroundColor: "#37474f",
                 color: "white",
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "&:hover": {
+                  transform: "scale(1.02)",
+                  boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.2)",
+                },
               }}
             >
               <Typography variant="h6">{roadmap.title}</Typography>
-              <Typography variant="subtitle1">
+              <Typography variant="subtitle2">
                 Author: {roadmap.author}
               </Typography>
-              <Typography variant="body2" className="mt-2">
-                {roadmap.description}
-              </Typography>
-              <Typography variant="body2" className="mt-1">
-                Content: {roadmap.content}
-              </Typography>
+              <Typography variant="body2">{roadmap.description}</Typography>
+              <Typography variant="body2">{roadmap.content}</Typography>
             </Card>
           ))}
         </Box>
