@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-   # Import CORS to handle CORS issues
 from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -17,7 +16,7 @@ from geminifunc import get_gemini_repsonse
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173/"}}, supports_credentials=True)
 
 API_KEY = "AIzaSyASpU0qAf8xcDgZ6Wqdw-Ts8WJftF0cDFU"
 GROQ_API_KEY = "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"
@@ -73,13 +72,13 @@ def ytsearch(search_query):
 
 # Process transcript and query
 def process_transcript_and_query(transcript, query):
-    model_name = "BAAI/bge-base-en-v1.5"
+    model___name__ = "BAAI/bge-base-en-v1.5"
     docs = [{'page_content': transcript}]
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=256, chunk_overlap=20)
     chunks = text_splitter.split_documents(docs)
 
     embeddings = HuggingFaceInferenceAPIEmbeddings(
-        api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_name
+        api_key=HUGGINGFACEHUB_API_TOKEN, model___name__=model___name__
     )
 
     vectorstore = Chroma.from_documents(chunks, embeddings)
@@ -105,13 +104,13 @@ def process(search_query):
     query = f"provide 10 questions on {search_query}"
 
     process_tool1 = Tool(
-        name='Process Video 1 Transcript',
+        __name__='Process Video 1 Transcript',
         func=lambda q: process_transcript_and_query(video_transcript1, q),
         description="Useful for processing transcript and answering queries."
     )
 
     process_tool2 = Tool(
-        name='Process Video 2 Transcript',
+        __name__='Process Video 2 Transcript',
         func=lambda q: process_transcript_and_query(video_transcript2, q),
         description="Useful for processing transcript and answering queries."
     )
@@ -172,7 +171,7 @@ def career_assessment_route():
         skills, 
         workExperience
     )
-    print(result)
+    
     # Return the result as JSON
     return jsonify(result)
 
@@ -192,6 +191,6 @@ def add_data():
     else:
         return jsonify({"error": "No data provided!"}), 400
 
-# Main block to run the Flask app
+# __main__ block to run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)

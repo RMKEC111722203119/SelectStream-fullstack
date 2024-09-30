@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import ReactMarkdown from "react-markdown"; // Import ReactMarkdown
-import { InlineMath, BlockMath } from "react-katex"; // For rendering math (optional)
+ // For rendering math (optional)
 import "katex/dist/katex.min.css"; // Include KaTeX CSS
 import Iframe from "react-iframe"; // For handling iframes
 import "bootstrap/dist/css/bootstrap.min.css";
